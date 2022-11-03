@@ -6,20 +6,23 @@
   "scripts": {
     "start": "cross-env NODE_ENV=production node index.js",
     "dev": "cross-env NODE_ENV=development nodemon index.js",
-    "test": "cross-env NODE_ENV=test jest --verbose"
+    "test": "cross-env NODE_ENV=test jest --verbose --runInBand --forceExit --silent --detectOpenHandles",
+    "test:watch": "npm run test -- --watch"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "jest": "29.2.2",
-    "standard": "17.0.0"
+    "standard": "17.0.0",
+    "supertest": "^6.3.1"
   },
   "dependencies": {
     "cors": "2.8.5",
     "cross-env": "^7.0.3",
     "dotenv": "16.0.3",
     "express": "4.18.2",
+    "express-async-errors": "^3.1.1",
     "mongoose": "6.7.0"
   },
   "eslintConfig": {
