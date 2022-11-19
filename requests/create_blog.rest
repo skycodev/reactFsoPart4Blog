@@ -1,9 +1,10 @@
 POST http://localhost:3001/api/blogs
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFuaWJhbHRvcmljZXMiLCJpZCI6IjYzNzc2YjcwZjY0NjI5MjE2Yzg0YjRlNSIsImlhdCI6MTY2ODg1MTg0Nn0.96ZouH2ArVQjh2F_4qxunSVCgHCc03uqn1LOk75TN-4
 
 {
-  "title":"blog uno",
+  "title":"blog dos",
   "author": "anibaltorices",
   "url":"https://www.anibaltorices.com",
-  "likes": "89"
+  "likes": "100"
 }

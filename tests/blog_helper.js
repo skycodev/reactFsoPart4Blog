@@ -39,7 +39,7 @@ const oneBlogNoLikes = {
   title: 'blog no likes',
   author: 'anibaltorices',
   url: 'https://www.anibaltorices.com',
-  id: '635f929ecc0fdcac56456456'
+  id: '635f929ecc0fdcac56455556456'
 }
 const oneBlogNoTitle = {
   author: 'anibaltorices',
@@ -77,7 +77,7 @@ const nonExistingId = async () => {
   return blog._id.toString()
 }
 
-const getAllTitlesFromBlogs = async () => {
+const getAllBlogs = async () => {
   const response = await api.get('/api/blogs')
   return {
     titles: response.body.map(blog => blog.title),
@@ -95,5 +95,5 @@ module.exports = {
   blogsInDb,
   nonExistingId,
   api,
-  getAllTitlesFromBlogs
+  getAllBlogs
 }

@@ -10,30 +10,50 @@ const {
   oneBlogNoUrl,
   api,
   newBlogUpdated,
-  getAllTitlesFromBlogs,
+  getAllBlogs,
   nonExistingId
 } = require('./blog_helper')
 
 describe('when there is initially some blogs saved', () => {
+  let headers
   beforeEach(async () => {
     await Blog.deleteMany({})
     await Blog.insertMany(initialBlogs)
-  })
 
-  test('notes are returned as json', async () => {
+    const newUser = {
+      username: 'test',
+      name: 'test',
+      password: '1234'
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+
+    const result = await api
+      .post('/api/login')
+      .send(newUser)
+
+    headers = {
+      Authorization: `bearer ${result.body.token}`
+    }
+  }, 10000)
+
+  test('blogs are returned as json', async () => {
     await api
       .get('/api/blogs')
       .expect(200)
+      .set(headers)
       .expect('Content-Type', /application\/json/)
   }, 100000)
 
   test('correct amount of blogs', async () => {
-    const { response } = await getAllTitlesFromBlogs()
+    const { response } = await getAllBlogs()
     expect(response.body).toHaveLength(initialBlogs.length)
   })
 
   test('identifier is named id', async () => {
-    const { response } = await getAllTitlesFromBlogs()
+    const { response } = await getAllBlogs()
     expect(response.body[0].id).toBeDefined()
   })
   describe('addition new blogs', () => {
@@ -42,11 +62,12 @@ describe('when there is initially some blogs saved', () => {
         .post('/api/blogs')
         .send(oneBlog)
         .expect(201)
+        .set(headers)
         .expect('Content-Type', /application\/json/)
 
       const finalBlogs = await blogsInDb()
       expect(finalBlogs).toHaveLength(initialBlogs.length + 1)
-      const titles = finalBlogs.map(b => b.title)
+      const { titles } = await getAllBlogs()
       expect(titles).toContain('blog tres')
     }, 10000)
 
@@ -55,6 +76,7 @@ describe('when there is initially some blogs saved', () => {
         .post('/api/blogs')
         .send(oneBlogNoLikes)
         .expect(201)
+        .set(headers)
         .expect('Content-Type', /application\/json/)
 
       const finalBlogs = await blogsInDb()
@@ -63,19 +85,35 @@ describe('when there is initially some blogs saved', () => {
       expect(lastBlog.likes).toBe(0)
     }, 10000)
 
-    test('we cant add an blog if title or url is missing,status code expected: 400', async () => {
-      api
-        .post('api/blogs')
+    test('we cant add a blog if title or url is missing,status code expected: 400', async () => {
+      await api
+        .post('/api/blogs')
         .send(oneBlogNoTitle)
         .expect(400)
-      api
-        .post('api/blogs')
+        .set(headers)
+        .expect('Content-Type', /application\/json/)
+
+      await api
+        .post('/api/blogs')
         .send(oneBlogNoUrl)
         .expect(400)
+        .set(headers)
+        .expect('Content-Type', /application\/json/)
 
       const finalBlogs = await blogsInDb()
       expect(finalBlogs).toHaveLength(initialBlogs.length)
-    })
+    }, 10000)
+
+    test('add a blog fail if the token is not provided, status code expected:401', async () => {
+      await api
+        .post('/api/blogs')
+        .send(oneBlog)
+        .expect(401)
+        .expect('Content-Type', /application\/json/)
+
+      const finalBlogs = await blogsInDb()
+      expect(finalBlogs).toHaveLength(initialBlogs.length)
+    }, 10000)
   })
   describe('deletetion of a blog', () => {
     test('a blog can be deleted, status code expected: 204', async () => {
@@ -87,7 +125,7 @@ describe('when there is initially some blogs saved', () => {
       const blogsAtFinal = await blogsInDb()
       expect(blogsAtFinal).toHaveLength(blogsAtStart.length - 1)
 
-      const { titles } = await getAllTitlesFromBlogs()
+      const { titles } = await getAllBlogs()
       expect(titles).not.toContain(blogToDelete.title)
     })
     test('we can not delete if id is invalid, , status code expected:400', async () => {
